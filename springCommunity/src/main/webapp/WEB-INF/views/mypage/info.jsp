@@ -97,10 +97,19 @@
         	<th>월급은행 </th>
         	<td>
           	<select>
-            	<option>전북은행</option>
             	<option>국민은행</option>
-            	<option>하나KEB은행</option>
-            	<option>우리은행</option>
+              <option>농협은행</option>
+              <option>신한은행</option>
+              <option>카카오뱅크</option>
+              <option>우리은행</option>
+              <option>하나은행</option>
+              <option>전북은행</option>
+              <option>토스뱅크</option>
+              <option>기업은행</option>
+            	<option>수협은행</option>
+            	<option>부산은행</option>
+            	<option>새마을금고</option>
+            	<option>광주은행</option>
           	</select>
         	</td>
       	</tr>
