@@ -43,21 +43,18 @@
 		                <th>근무 시간 </th>
 		                <th>연장 근무 시간 </th>
 		                <th>특별 근무 시간 </th>
-		                <th>특별 근무 시간 </th>
 		                <th>총 근무 시간 </th>
 				</thead>
 				<tbody>
 				 	<tr>
-		                <th>2024.12.09</th>
-		                <td>8</td>
-		                <td>8</td>
+		                <th>${dilyWorkTime.date}</th>
+		                <td></td>
 		                <td>8</td>
 		                <td>8</td>
 		                <td>8</td>
 		            </tr>
 		            <tr>
 		                <td>2024.12.10</td>
-		                <td>8</td>
 		                <td>8</td>
 		                <td>8</td>
 		                <td>8</td>
@@ -69,11 +66,9 @@
 		                <td>8</td>
 		                <td>8</td>
 		                <td>8</td>
-		                <td>8</td>
 		            </tr>
 		            <tr>
 		                <td>2024.12.12</td>
-		                <td>8</td>
 		                <td>8</td>
 		                <td>8</td>
 		                <td>8</td>
@@ -85,7 +80,6 @@
 		                <td>8</td>
 		                <td>8</td>
 		                <td>8</td>
-		                <td>8</td>
 		            </tr>
 		            <tr>
 		                <td>2024.12.14</td>
@@ -93,11 +87,9 @@
 		                <td>8</td>
 		                <td>8</td>
 		                <td>8</td>
-		                <td>8</td>
 		            </tr>
 		            <tr>
 		                <td>2024.12.15</td>
-		                <td>8</td>
 		                <td>8</td>
 		                <td>8</td>
 		                <td>8</td>
