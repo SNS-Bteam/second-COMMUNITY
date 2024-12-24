@@ -108,38 +108,6 @@ public class DailyWorkTimeServiceImpl implements DailyWorkTimeService {
 
 		return dailyWorkTimeDAO.selectList(user_id);
 	}
-/*	
-	// 앞서 가져온 전체 출퇴근 시간을  이용해서
-	// 일별 근무 시간, 주간 근무 시간을 계산함 
-
-	1. 해당 유저의 전체 출퇴근 시간을 가져옴 
-	2. 일간 근무 시간 계산
-	3. 주간 근무 시간 계산 (월요일 기준으로 ) 
-*/
-/*
-	 readMe 정리해야할 부분 
-	 하루 근무 시간 & 주간 시간 계산 및  
-	 	// Long::sum은 long 타입의 값을 더하는 함수, 즉 두 개의 Long 값을 합산하는 역활을 하며, Map의 merge메서드에서 사용
-    	//함수형 인터페이스 >> 
-  	 	//Bifunction >> 두개의 입력을 받아 하나의 결과를 반환하는 함수형 인터페이스 
-    	//Long::sum >> Bifunction을 간결하게 표현
-    	>> localDateTime 과 localTime의 차이는 ???>  
-     	정리 
- */
-	
-/*
-    월요일부터 금요일까지의 날짜 데이터를 가져오는 메소드가 필요하고 
-     그 내용을 이용해서 ,코드를 수정해야함
-     주간 근무 시간 계산시 > merge를 사용함  
-	merge할 때 주의점, 키의 이름이 동일하면 이번 주 근무 기록과 다음 주 근무 기록이 합산될 수 있음(유의) 
-*/
-/* 기존 코드에서 수정해야하는 내용 
-	현재 calculateWorkTime 메소드 내부의 weekKey 키 이름이  너무 어려움 
-	또한 weekKey를 조회하면 키 이름이 예를들어 2024.12.23~2024.12.29 이런 형식으로 이루어져 있는데, 
-	1. 날짜를 정수형 배열에 담고 , sort를 이용해서 오름차순으로 정렬 
-	2. 오름차순으로 정렬한 배열에서 반복문 돌려서 , i가 x일 때, Stirng weekKey = "a 주차 키 " 이런식으로 if -else 사용 또는 subString 사용해서 생성 
- */
-	
 	@Override
 	public Map<String, Object> calculateWorkTime(String user_id) {
 	
@@ -223,9 +191,6 @@ public class DailyWorkTimeServiceImpl implements DailyWorkTimeService {
         LocalDateTime  end = LocalDateTime .parse(checkOutTime, formatter);
         
         return Duration.between(start, end).toMinutes(); // 시간 단위로 반환 >> 버림처리 
-        // 따라서 시간 ,분을 이용해서 반환하게끔 설정
-        // 초 단위로는 버림 
-        //시간과 , 분은 버리지 않고 가져오게끔 설정 
     }
 	
 	

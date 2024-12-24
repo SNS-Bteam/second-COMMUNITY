@@ -1105,7 +1105,7 @@ function checkOut() {
                         }
                     },
                     error: function (xhr, status, error) {
-                        alert('이미 퇴근 버튼을 눌렀습니다.');
+                        alert('거리가 범위 밖에 있습니다.');
                         console.log(xhr.responseText);
                     }
                 });
@@ -1225,7 +1225,7 @@ function checkOut() {
 	            <th>|</th>
 	            <th class="existValue"><a href="<%=request.getContextPath() %>/post/list.do?post_type=0">사내 커뮤니티</a></th>
 	            <th>|</th>
-	            <th class="existValue"><a href="user/myDepartment.do">나의 부서 업무 상황</a></th>
+	            <th class="existValue"><a href="<%=request.getContextPath() %>/user/myDepartment.do">나의 부서 업무 상황</a></th>
 	        </tr>
 	    </table>
 	</sec:authorize>
