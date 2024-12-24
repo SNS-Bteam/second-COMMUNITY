@@ -599,9 +599,9 @@ function connectWebSocket(chat_no) {
     // 채팅방 번호에 따라 WebSocket을 생성
     if(!chatWebSockets[chat_no]) {
     	/* 시연용 */
-        const socket = new WebSocket("ws://192.168.0.175:8080/community/chat"); 
+        //const socket = new WebSocket("ws://192.168.0.175:8080/community/chat"); 
         //각자 컴퓨터에서 돌릴용
-        //const socket = new WebSocket("ws://localhost:8080/community/chat"); 
+        const socket = new WebSocket("ws://localhost:8080/community/chat"); 
 
         socket.onopen = function () {
             console.log(`WebSocket 연결 성공: 채팅방 \${chat_no}`);
@@ -699,8 +699,8 @@ function sendMessage(chat_no) {
         $.ajax({
             url: '<%= request.getContextPath() %>/chat/sendMessage.do',
             method: 'POST',
-            contentType: 'application/json',
-            data: JSON.stringify({ chat_no, user_id, chat_message_content }),
+            //contentType: 'application/json',
+            data: { chat_no : chat_no, user_id : user_id, chat_message_content : chat_message_content },
             success: function() {
                 console.log('메시지가 저장되었습니다.');
             },
@@ -842,11 +842,11 @@ function saveChatName(chat_no, newName, inputElement) {
             chat_users_name: newName,
             user_id: user_id
         },
-        success: function(result) {
-        	if(result.trim() === "Success"){
+        success: function(data) {
+        	if(data.result === "Success"){
 	            // 성공적으로 저장된 경우 이름 업데이트
 	            const updatedElement = $(`<h2 id="chatName_\${chat_no}" onclick="modifyChatName(\${chat_no})"></h2>`)
-	                .text(newName);
+	                .text(data.vo.chat_users_name);
 	            inputElement.replaceWith(updatedElement);
         	}else {
                 alert("저장 실패: 다시 시도해주세요.");
@@ -1221,9 +1221,9 @@ function checkOut() {
 		
 		<table class="mainTable" style="font-size:18px; text-decoration: none; color:black; font-weight: bold;">
 	        <tr>
-	            <th class="existValue"><a href="<%=request.getContextPath() %>/notice/list.do">공지사항</a></th>
+	            <th class="existValue"><a href="<%=request.getContextPath() %>/post/list.do?post_type=1">공지사항</a></th>
 	            <th>|</th>
-	            <th class="existValue"><a href="<%=request.getContextPath() %>/board/list.do">사내 커뮤니티</a></th>
+	            <th class="existValue"><a href="<%=request.getContextPath() %>/post/list.do?post_type=0">사내 커뮤니티</a></th>
 	            <th>|</th>
 	            <th class="existValue"><a href="user/myDepartment.do">나의 부서 업무 상황</a></th>
 	        </tr>

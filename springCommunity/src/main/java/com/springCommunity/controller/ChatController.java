@@ -6,6 +6,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.apache.commons.collections4.map.HashedMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -22,9 +24,10 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.springCommunity.service.ChatService;
 import com.springCommunity.vo.*;
 
+
 @RequestMapping(value="/chat")
 @Controller
-public class CharController {
+public class ChatController {
 	
 	@Autowired
 	ChatService chatService;
@@ -58,7 +61,10 @@ public class CharController {
         Map<String,Object> map = new HashMap<String, Object>();
 		
 		List<ChatVO> list = chatService.selectAll(searchVO);
-		
+		for(ChatVO vo : list) {
+			vo.setChat_message_content(restoreSanitizedInput(vo.getChat_message_content()));
+			vo.setChat_users_name(restoreSanitizedInput(vo.getChat_users_name()));
+		}
 		model.addAttribute("list", list);
     	
 		if(list.isEmpty()) {
@@ -184,8 +190,13 @@ public class CharController {
     // 메시지 전송
     @ResponseBody
     @RequestMapping(value ="/sendMessage.do", method = RequestMethod.POST, produces = "application/text; charset=utf-8")
-    public void sendMessage(@RequestBody ChatMessageVO chatMessageVO) {
+    public void sendMessage(ChatMessageVO chatMessageVO,HttpServletRequest request) {
     	System.out.println("chatMessageVO "+chatMessageVO.getChat_message_content());
+    	
+    	if(request.getAttribute("chat_message_content") != null 
+    			&& !request.getAttribute("chat_message_content").equals("")) {
+    		chatMessageVO.setChat_message_content((String)request.getAttribute("chat_message_content"));
+    	}
     	
     	int result = chatService.sendMessage(chatMessageVO);
     	
@@ -203,6 +214,9 @@ public class CharController {
     @RequestMapping(value="/loadMessage.do", method = RequestMethod.GET, produces = "application/json; charset=utf-8")
     public List<ChatMessageVO> loadMessage(int chat_no){
     	List<ChatMessageVO> list = chatService.loadMessage(chat_no);
+    	for(ChatMessageVO vo : list) {
+    		vo.setChat_message_content(restoreSanitizedInput(vo.getChat_message_content()));
+    	}
     	return list;
     }
     
@@ -226,18 +240,40 @@ public class CharController {
     // 채팅방 이름 변경(참가자 각자변경)
     @ResponseBody
     @PostMapping("/updateChatUserName.do")
-    public String updateChatUserName(ChatVO vo) {
+    public Map<String,Object> updateChatUserName(ChatVO vo,HttpServletRequest request) {
+    	if(request.getAttribute("chat_users_name") != null 
+    			&& !request.getAttribute("chat_users_name").equals("")) {
+    		vo.setChat_users_name((String)request.getAttribute("chat_users_name"));
+    	}
+    	
         int result = chatService.updateChatUserName(vo);
+        
+        Map<String,Object> map = new HashMap<String, Object>();
+        
         if(result > 0) {
-        	return "Success";
+        	ChatVO aVO = chatName(vo);
+        	map.put("result", "Success");
+        	map.put("vo", aVO);
         }else {
-        	return "Fail";
+        	map.put("result", "Fail");
         }
+        return map;
     }
     
     @ResponseBody
     @RequestMapping(value = "/addUser.do", method = RequestMethod.POST, produces = "application/text; charset=utf-8")
     public String addChatUser(@RequestBody Map<String, Object> data) {
+    	Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		String loginUser = null;
+		if(authentication != null && authentication.isAuthenticated()) {
+			Object principal = authentication.getPrincipal();
+			if(principal instanceof UserDetails) {
+				loginUser = ((UserDetails)principal).getUsername();
+			}else {
+				loginUser = principal.toString();
+			}
+		}
+    	
         List<String> users = (List<String>)data.get("users"); // 초대할 사용자 리스트
         int chat_no = (Integer)data.get("chat_no");          // 채팅방 번호
         String chat_users_name = (String)data.get("chat_users_name"); // 채팅방 이름
@@ -281,7 +317,15 @@ public class CharController {
             ChatVO message = new ChatVO();
             message.setChat_no(chat_no);
             message.setChat_message_content(afterUserName + "님이 초대되었습니다.");
-            chatService.sendSystemMessage(message);
+            int result2 = chatService.sendSystemMessage(message);
+            if(result2 > 0) {
+            	ChatVO readVO = new ChatVO();
+            	readVO.setChat_no(chat_no);
+            	readVO.setUser_id(loginUser);
+            	readVO.setChat_message_no(message.getChat_message_no());
+            	chatService.sendMessageAfterFirst(readVO);
+        		chatService.sendMessageAfterSecond(readVO);
+            }
         }
 
         return "Success"; 
@@ -290,7 +334,11 @@ public class CharController {
     @ResponseBody
     @PostMapping("/chatName.do")
     public ChatVO chatName(ChatVO vo) {
-        return chatService.chatName(vo);
+    	
+    	ChatVO resultVO = chatService.chatName(vo);
+    	resultVO.setChat_users_name(restoreSanitizedInput(resultVO.getChat_users_name()));
+    	
+        return resultVO;
     }
     
     @ResponseBody
@@ -308,5 +356,19 @@ public class CharController {
     @RequestMapping(value = "/unreadMessageCounts.do", method = RequestMethod.GET, produces = "application/json; charset=utf-8")
     public int unreadMessageCounts(String user_id) {
         return chatService.unreadMessageCounts(user_id);
+    }
+    
+    private String restoreSanitizedInput(String input) {
+        if(input == null) {
+            return null;
+        }
+        input = input
+                .replaceAll("&lt;", "<")
+                .replaceAll("&gt;", ">")
+                .replaceAll("&quot;", "\"")
+                .replaceAll("&#x27;", "'")
+                .replaceAll("&amp;", "&")
+                .replaceAll("<br>", "\n");
+        return input;
     }
 }
